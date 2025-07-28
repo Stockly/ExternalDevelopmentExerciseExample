@@ -1,0 +1,79 @@
+[
+	{
+		"order": {
+			"id": "B2B111",
+			"status_order_id": 5,
+			"status_order_name": "Sent",
+			"customer_id": 1,
+			"submitted_at": "2019-04-30T15:35:05.000+02:00",
+			"comments_customer": "",
+			"comments_wholesaler": null,
+			"address": "Teststraat 10",
+			"address2": "",
+			"city": "Rotterdam",
+			"province": "",
+			"country": "NL",
+			"postal_code": "9101AA",
+			"customer_order_reference": "99991111",
+			"shipping_option_id": null,
+			"shipping_costs": "0.0",
+			"shipping_tracking": null,
+			"shipping_tracking_url": "",
+			"shipping_tracking_urls_by_number": [],
+			"total_products_before_discount": "2.0",
+			"discount_percentage": "0.0",
+			"discount_total": null,
+			"total_products_before_vat": "2.0",
+			"total_before_vat": "2.0",
+			"total_vat": "0.0",
+			"total_products_after_vat": "2.154",
+			"gross_total": "3.6648",
+			"extra_fields": {},
+			"request_delivery_at": null,
+			"integration_ref": null,
+			"order_products": [
+				{
+					"order_product": {
+						"id": 1234,
+						"order_id": 123,
+						"product_id": 9999,
+						"quantity": "1.0",
+						"price": "2.0",
+						"final_price": "2.0",
+						"discount_percentage": "0.0",
+						"vat_percentage": "7.7",
+						"total_before_vat": "2.0",
+						"total_vat": "0.154",
+						"total_after_vat": "2.154",
+						"status_order_id": null,
+						"status_order_name": "",
+						"estimated_delivery_date": null,
+						"estimated_dispatch_date": null,
+						"addressbook": {
+							"reference_code": null,
+							"name": "test",
+							"address": "test",
+							"address2": "",
+							"city": "tes",
+							"province": "tes",
+							"country": "NL",
+							"postal_code": "1234",
+							"phone": "",
+							"comments": null
+						},
+						"product_name": "Test product",
+						"product_code": "123456"
+					}
+				}
+			],
+			"customer_email": "examplemail@gmail.com",
+			"customer_company": "Example-company",
+			"customer_name": "Example name",
+			"customer_phone": "1234568129",
+			"customer_reference_code": "",
+			"addressbook_reference_code": null,
+			"replacement_tracking_number": "**************",
+			"sent_date": null
+		}
+	}
+]
