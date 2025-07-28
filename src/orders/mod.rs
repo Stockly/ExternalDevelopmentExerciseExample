@@ -1,5 +1,6 @@
 use {
 	chrono::{DateTime, Utc},
+	itertools::Itertools,
 	serde::{Deserialize, Deserializer, Serialize},
 };
 
@@ -12,12 +13,18 @@ pub enum FetchOrderError {
 }
 
 pub fn fetch_order_by_customer_reference(reference: &str) -> Result<Order, FetchOrderError> {
-	let url = format!("https://b2b.bigecommercewebsite.com/api_customer/orders?customer_order_reference_eq={reference}");
-	let resp = reqwest::blocking::get(&url).map_err(FetchOrderError::Reqwest)?;
-	let body = resp.text().map_err(FetchOrderError::Reqwest)?;
-	let orders: Vec<OrderWrapper> = serde_json::from_str(&body).map_err(FetchOrderError::Deserialization)?;
-	use itertools::Itertools;
-	match orders.into_iter().at_most_one() {
+	match serde_json::from_str::<Vec<OrderWrapper>>(
+		&reqwest::blocking::get(&format!(
+			"https://b2b.bigecommercewebsite.com/api_customer/orders?customer_order_reference_eq={reference}"
+		))
+		.map_err(FetchOrderError::Reqwest)?
+		.text()
+		.map_err(FetchOrderError::Reqwest)?,
+	)
+	.map_err(FetchOrderError::Deserialization)?
+	.into_iter()
+	.at_most_one()
+	{
 		Ok(Some(order_wrapper)) => Ok(order_wrapper.order),
 		Ok(None) => Err(FetchOrderError::NotFound),
 		Err(orders) => Err(FetchOrderError::MultipleFound(orders.collect())),
@@ -246,7 +253,7 @@ mod datetime {
 #[cfg(test)]
 mod tests {
 	use super::*;
-		
+
 	use chrono::TimeZone;
 
 	#[test]

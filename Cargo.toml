@@ -1,7 +1,9 @@
 [package]
+	authors = ["Stockly <contact@stockly.ai> (https://stockly.ai)"]
 	edition = "2024"
 	name = "example"
-	version = "0.1.0"
+	publish = false
+	version = "1.0.0"
 
 [dependencies]
 	chrono = { version = "0.4", features = ["serde"] }
