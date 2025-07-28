@@ -4,7 +4,7 @@ use {
 	serde::{Deserialize, Deserializer, Serialize},
 };
 
-#[derive(Debug)]
+#[derive(Debug, derive_more::From)]
 pub enum FetchOrderError {
 	Reqwest(reqwest::Error),
 	Deserialization(serde_json::Error),
@@ -16,12 +16,9 @@ pub fn fetch_order_by_customer_reference(reference: &str) -> Result<Order, Fetch
 	match serde_json::from_str::<Vec<OrderWrapper>>(
 		&reqwest::blocking::get(&format!(
 			"https://b2b.bigecommercewebsite.com/api_customer/orders?customer_order_reference_eq={reference}"
-		))
-		.map_err(FetchOrderError::Reqwest)?
-		.text()
-		.map_err(FetchOrderError::Reqwest)?,
-	)
-	.map_err(FetchOrderError::Deserialization)?
+		))?
+		.text()?,
+	)?
 	.into_iter()
 	.at_most_one()
 	{
@@ -258,87 +255,85 @@ mod tests {
 
 	#[test]
 	fn deserialization() {
-		let json_str = include_str!("orders.json");
-		let deserialized: Vec<OrderWrapper> = serde_json::from_str(json_str).unwrap();
-
-		let expected = vec![OrderWrapper {
-			order: Order {
-				id: OrderId("B2B111".to_string()),
-				status_order_id: StatusOrderId(5),
-				status_order_name: Some("Sent".to_string()),
-				customer_id: CustomerId(1),
-				submitted_at: Utc.with_ymd_and_hms(2019, 4, 30, 13, 35, 5).unwrap(),
-				comments_customer: None,
-				comments_wholesaler: None,
-				address: "Teststraat 10".to_string(),
-				address2: None,
-				city: Some("Rotterdam".to_string()),
-				province: None,
-				country: Some("NL".to_string()),
-				postal_code: Some("9101AA".to_string()),
-				shipping_option_id: None,
-				shipping_costs: 0.0,
-				shipping_tracking: None,
-				shipping_tracking_url: None,
-				shipping_tracking_urls_by_number: vec![],
-				total_products_before_discount: 2.0,
-				discount_percentage: 0.0,
-				discount_total: None,
-				total_products_before_vat: 2.0,
-				total_before_vat: 2.0,
-				total_vat: 0.0,
-				total_products_after_vat: 2.154,
-				gross_total: 3.6648,
-				extra_fields: serde_json::json!({}),
-				request_delivery_at: None,
-				integration_ref: None,
-				order_products: vec![OrderProductWrapper {
-					order_product: OrderProduct {
-						id: OrderProductId(1234),
-						order_id: OrderProductOrderId(123),
-						product_id: ProductId(9999),
-						quantity: 1.0,
-						price: 2.0,
-						final_price: 2.0,
-						discount_percentage: 0.0,
-						vat_percentage: 7.7,
-						total_before_vat: 2.0,
-						total_vat: 0.154,
-						total_after_vat: 2.154,
-						status_order_id: None,
-						status_order_name: None,
-						estimated_delivery_date: None,
-						estimated_dispatch_date: None,
-						addressbook: AddressBook {
-							reference_code: None,
-							name: "test".to_string(),
-							address: Some("test".to_string()),
-							address2: None,
-							city: "tes".to_string(),
-							province: "tes".to_string(),
-							country: "NL".to_string(),
-							postal_code: "1234".to_string(),
-							phone: None,
-							comments: None,
+		assert_eq!(
+			serde_json::from_str::<Vec<OrderWrapper>>(include_str!("orders.json")).unwrap(),
+			vec![OrderWrapper {
+				order: Order {
+					id: OrderId("B2B111".to_string()),
+					status_order_id: StatusOrderId(5),
+					status_order_name: Some("Sent".to_string()),
+					customer_id: CustomerId(1),
+					submitted_at: Utc.with_ymd_and_hms(2019, 4, 30, 13, 35, 5).unwrap(),
+					comments_customer: None,
+					comments_wholesaler: None,
+					address: "Teststraat 10".to_string(),
+					address2: None,
+					city: Some("Rotterdam".to_string()),
+					province: None,
+					country: Some("NL".to_string()),
+					postal_code: Some("9101AA".to_string()),
+					shipping_option_id: None,
+					shipping_costs: 0.0,
+					shipping_tracking: None,
+					shipping_tracking_url: None,
+					shipping_tracking_urls_by_number: vec![],
+					total_products_before_discount: 2.0,
+					discount_percentage: 0.0,
+					discount_total: None,
+					total_products_before_vat: 2.0,
+					total_before_vat: 2.0,
+					total_vat: 0.0,
+					total_products_after_vat: 2.154,
+					gross_total: 3.6648,
+					extra_fields: serde_json::json!({}),
+					request_delivery_at: None,
+					integration_ref: None,
+					order_products: vec![OrderProductWrapper {
+						order_product: OrderProduct {
+							id: OrderProductId(1234),
+							order_id: OrderProductOrderId(123),
+							product_id: ProductId(9999),
+							quantity: 1.0,
+							price: 2.0,
+							final_price: 2.0,
+							discount_percentage: 0.0,
+							vat_percentage: 7.7,
+							total_before_vat: 2.0,
+							total_vat: 0.154,
+							total_after_vat: 2.154,
+							status_order_id: None,
+							status_order_name: None,
+							estimated_delivery_date: None,
+							estimated_dispatch_date: None,
+							addressbook: AddressBook {
+								reference_code: None,
+								name: "test".to_string(),
+								address: Some("test".to_string()),
+								address2: None,
+								city: "tes".to_string(),
+								province: "tes".to_string(),
+								country: "NL".to_string(),
+								postal_code: "1234".to_string(),
+								phone: None,
+								comments: None,
+							},
+							product_name: "Test product".to_string(),
+							product_code: Some("123456".to_string()),
 						},
-						product_name: "Test product".to_string(),
-						product_code: Some("123456".to_string()),
+					}],
+					customer: CustomerInfo {
+						customer_order_reference: Some("99991111".to_string()),
+						customer_email: Some("examplemail@gmail.com".to_string()),
+						customer_company: Some("Example-company".to_string()),
+						customer_name: Some("Example name".to_string()),
+						customer_phone: Some("1234568129".to_string()),
+						customer_reference_code: None,
 					},
-				}],
-				customer: CustomerInfo {
-					customer_order_reference: Some("99991111".to_string()),
-					customer_email: Some("examplemail@gmail.com".to_string()),
-					customer_company: Some("Example-company".to_string()),
-					customer_name: Some("Example name".to_string()),
-					customer_phone: Some("1234568129".to_string()),
-					customer_reference_code: None,
+					addressbook_reference_code: None,
+					replacement_tracking_number: Some("**************".to_string()),
+					sent_date: None,
 				},
-				addressbook_reference_code: None,
-				replacement_tracking_number: Some("**************".to_string()),
-				sent_date: None,
-			},
-		}];
-
-		assert_eq!(deserialized, expected);
+			}]
+		);
 	}
 }
